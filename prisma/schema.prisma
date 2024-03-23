@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model employee_role {
+  id          String    @id @default(uuid()) @map("_id")
+  employee_id String
+  role_id     String
+  created_at  DateTime? @default(now())
+  updated_at  DateTime? @updatedAt()
+
+  // relation
+  employee employees? @relation(fields: [employee_id], references: [id])
+  role     roles?     @relation(fields: [role_id], references: [id])
+}
+
+model employees {
+  id         String    @id @default(uuid()) @map("_id")
+  name       String
+  email      String    @unique
+  password   String
+  enabled    Boolean   @default(true)
+  logined    Boolean   @default(false)
+  locked_at  DateTime?
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt()
+
+  // relation
+  employee_roles employee_role[]
+}
+
+model roles {
+  id         String    @id @default(uuid()) @map("_id")
+  name       String
+  role_code  String
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt()
+
+  // relations
+  employee_roles employee_role[]
+}
