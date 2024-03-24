@@ -32,7 +32,7 @@ export class AdminGuard implements CanActivate {
         secret: jwtSecrect,
       })
       request['admin'] = payload
-    } catch {
+    } catch (error) {
       throw new UnauthorizedException()
     }
 

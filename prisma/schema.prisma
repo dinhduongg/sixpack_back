@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model employee_role {
+model employee_roles {
   id          String    @id @default(uuid()) @map("_id")
   employee_id String
   role_id     String
@@ -31,7 +31,7 @@ model employees {
   updated_at DateTime? @updatedAt()
 
   // relation
-  employee_roles employee_role[]
+  roles employee_roles[]
 }
 
 model roles {
@@ -42,5 +42,22 @@ model roles {
   updated_at DateTime? @updatedAt()
 
   // relations
-  employee_roles employee_role[]
+  employee_roles employee_roles[]
+}
+
+model dashboards {
+  id         String    @id @default(uuid()) @map("_id")
+  name       String
+  icon       String?
+  parent_id  String?
+  url        String?
+  role_code  String?
+  enabled    Boolean @default(true)
+  check_role Boolean @default(true)
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt()
+
+  // relation
+  parent dashboards? @relation("dashboard_parent", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  childrens dashboards[] @relation("dashboard_parent")
 }

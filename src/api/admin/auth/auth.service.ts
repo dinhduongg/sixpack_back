@@ -47,7 +47,7 @@ export class AuthService {
 
       const jwtSecrect = this.config.get<string>('jwtSecrect')
 
-      const access_token = await this.jwtService.signAsync(payload, { expiresIn: '10s', secret: jwtSecrect })
+      const access_token = await this.jwtService.signAsync(payload, { expiresIn: '1y', secret: jwtSecrect })
 
       return { user, access_token }
     } catch (error) {
