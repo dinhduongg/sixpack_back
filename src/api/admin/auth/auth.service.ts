@@ -17,7 +17,20 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string) {
-    const employee = await this.prisma.employees.findFirst({ where: { email } })
+    const employee = await this.prisma.employees.findFirst({
+      where: { email },
+      include: {
+        roles: {
+          select: {
+            role: {
+              select: {
+                role_code: true,
+              },
+            },
+          },
+        },
+      },
+    })
     const matchPass = await bcrypt.compareSync(password, employee.password)
 
     if (employee && matchPass) {
@@ -36,7 +49,24 @@ export class AuthService {
         throw new BadRequestException('Tài khoản đã bị khóa')
       }
 
-      await this.prisma.employees.update({ where: { id: user.id }, data: { logined: true } })
+      const employee = await this.prisma.employees.update({
+        where: { id: user.id },
+        data: { logined: true },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          roles: {
+            select: {
+              role: {
+                select: {
+                  role_code: true,
+                },
+              },
+            },
+          },
+        },
+      })
 
       const payload = {
         email: user.email,
@@ -45,11 +75,14 @@ export class AuthService {
         },
       }
 
+      const { roles, ...result } = employee
+      const employeeRoles = employee.roles.map((role) => role.role.role_code)
+
       const jwtSecrect = this.config.get<string>('jwtSecrect')
 
       const access_token = await this.jwtService.signAsync(payload, { expiresIn: '1y', secret: jwtSecrect })
 
-      return { user, access_token }
+      return { user: result, roles: employeeRoles, access_token }
     } catch (error) {
       throw new BadRequestException(error)
     }
