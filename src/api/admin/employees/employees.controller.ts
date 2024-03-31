@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common/decorators'
 
+import { GetQuery } from 'src/decorators/get-query.decorator'
 import { UseZodValidation } from 'src/decorators/zod.decorator'
+import { CommonQuery } from 'src/types/commom.type'
 import { EmployeesService } from './employees.service'
 import { ChangePasswordDTO, EmployeeDTO, UpdateEmployeeDTO, changePasswordDto, employeeDTO, updateEmployeeDto } from './employees.validator'
-import { GetQuery } from 'src/decorators/get-query.decorator'
-import { CommonQuery } from 'src/types/commom.type'
 
 @Controller('admin/employees')
 export class EmployeesController {

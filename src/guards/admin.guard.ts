@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Reflector } from '@nestjs/core'
 import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
+
+import { DatabaseService } from 'src/database/database.service'
 import { IS_PUBLIC_KEY } from 'src/decorators/public-route.decorator'
 
 @Injectable()
@@ -11,6 +14,7 @@ export class AdminGuard implements CanActivate {
     private jwtService: JwtService,
     private readonly config: ConfigService,
     private reflector: Reflector,
+    private readonly prisma: DatabaseService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -25,15 +29,36 @@ export class AdminGuard implements CanActivate {
 
     if (!token) throw new UnauthorizedException()
 
-    const jwtSecrect = this.config.get<string>('jwtSecrect')
+    const sessionData = await this.prisma.employee_sessions.findFirst({ where: { session_token: token } })
 
-    try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: jwtSecrect,
-      })
-      request['admin'] = payload
-    } catch (error) {
+    const now = new Date()
+    const expiredTokenTime = new Date(sessionData.expired_time)
+
+    if (!sessionData || now.getTime() > expiredTokenTime.getTime()) {
       throw new UnauthorizedException()
+    }
+
+    const employee = await this.prisma.employees.findUnique({
+      where: { id: sessionData.employee_id },
+      include: {
+        roles: {
+          select: {
+            role: {
+              select: {
+                role_code: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const { roles, created_at, enabled, locked_at, logined, password, updated_at, ...results } = employee
+    const employeeRoles = roles.map((role) => role.role.role_code)
+
+    request['admin'] = {
+      roles: employeeRoles,
+      ...results,
     }
 
     return true

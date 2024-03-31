@@ -61,3 +61,10 @@ model dashboards {
   parent dashboards? @relation("dashboard_parent", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   childrens dashboards[] @relation("dashboard_parent")
 }
+
+model employee_sessions {
+  id String @id @default(uuid()) @map("_id")
+  employee_id String
+  expired_time DateTime
+  session_token String
+}
