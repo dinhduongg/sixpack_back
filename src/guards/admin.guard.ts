@@ -31,10 +31,14 @@ export class AdminGuard implements CanActivate {
 
     const sessionData = await this.prisma.employee_sessions.findFirst({ where: { session_token: token } })
 
+    if (!sessionData) {
+      throw new UnauthorizedException()
+    }
+
     const now = new Date()
     const expiredTokenTime = new Date(sessionData.expired_time)
 
-    if (!sessionData || now.getTime() > expiredTokenTime.getTime()) {
+    if (now >= expiredTokenTime) {
       throw new UnauthorizedException()
     }
 

@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt'
 
 import { DatabaseService } from 'src/database/database.service'
 import { LoginDto } from './auth.interface'
-import { TokenPayload } from 'src/types/commom.type'
+import { AdminDetail, TokenPayload } from 'src/types/commom.type'
 
 @Injectable()
 export class AuthService {
@@ -84,17 +84,18 @@ export class AuthService {
       const { roles, ...result } = employee
       const employeeRoles = employee.roles.map((role) => role.role.role_code)
 
-      const token = await this.generateSessionToken(payload)
+      const { token, expiredTime } = await this.generateSessionToken(payload)
 
-      return { user: result, roles: employeeRoles, token }
+      return { user: result, roles: employeeRoles, token, expired_time: expiredTime }
     } catch (error) {
       throw new BadRequestException(error)
     }
   }
 
-  async signOut(id: string) {
+  async signOut(admin: AdminDetail) {
     try {
-      await this.prisma.employees.update({ where: { id }, data: { logined: false } })
+      await this.prisma.employees.update({ where: { id: admin.id }, data: { logined: false } })
+      await this.prisma.employee_sessions.deleteMany({ where: { employee_id: admin.id } })
       return { message: 'Thành công' }
     } catch (error) {
       throw new BadRequestException(error)
@@ -102,9 +103,13 @@ export class AuthService {
   }
 
   async generateSessionToken(payload: TokenPayload) {
+    // Get current date
     const now = new Date()
-    now.setHours(0, 0, 0, 0)
-    now.setDate(now.getDate() + 1)
+
+    // Set time to 12:00:00 AM for the next day
+    const nextDay = new Date(now)
+    nextDay.setDate(now.getDate() + 1)
+    nextDay.setHours(0, 0, 0, 0)
 
     const jwtSecrect = this.config.get<string>('jwtSecrect')
     const token = await this.jwtService.signAsync(payload, { secret: jwtSecrect })
@@ -117,12 +122,12 @@ export class AuthService {
       await this.prisma.employee_sessions.create({
         data: {
           employee_id: payload.id,
-          expired_time: now.toISOString(),
+          expired_time: nextDay,
           session_token: token,
         },
       })
     }
 
-    return token
+    return { token, expiredTime: nextDay }
   }
 }

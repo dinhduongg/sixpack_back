@@ -3,12 +3,14 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/
 import { DashboardsService } from './dashboards.service'
 import { UseZodValidation } from 'src/decorators/zod.decorator'
 import { DashboardDto, dashboardDto } from './dashboards.validator'
+import { Public } from 'src/decorators/public-route.decorator'
 
 @Controller('admin/dashboards')
 export class DashboardsController {
   constructor(private readonly dashboardsService: DashboardsService) {}
 
   @Get()
+  @Public()
   getAll(@Query('parent_id') parentId: string) {
     return this.dashboardsService.getAll(parentId)
   }
