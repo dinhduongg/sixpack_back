@@ -73,7 +73,9 @@ export class EmployeesService {
   async getDetail(id: string) {
     try {
       const employee = await this.prisma.employees.findUnique({ where: { id } })
-      return { employee }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...results } = employee
+      return { employee: results }
     } catch (error) {
       throw new BadRequestException(error)
     }
@@ -130,6 +132,15 @@ export class EmployeesService {
         await this.prisma.employee_roles.create({ data: { employee_id: employeeId, role_id: roleId } })
       }
 
+      return { message: 'Thành công' }
+    } catch (error) {
+      throw new BadRequestException(error)
+    }
+  }
+
+  async delete(id: string) {
+    try {
+      await this.prisma.employees.delete({ where: { id } })
       return { message: 'Thành công' }
     } catch (error) {
       throw new BadRequestException(error)

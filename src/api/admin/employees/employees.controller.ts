@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common/decorators'
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common/decorators'
 
 import { GetQuery } from 'src/decorators/get-query.decorator'
 import { UseZodValidation } from 'src/decorators/zod.decorator'
@@ -44,5 +44,11 @@ export class EmployeesController {
   @Put('role/:employee_id/:role_id')
   updateRole(@Param('employee_id') employeeId: string, @Param('role_id') roleId: string) {
     return this.employeesService.updateRole(employeeId, roleId)
+  }
+
+  // Xóa nhân viên
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.employeesService.delete(id)
   }
 }
