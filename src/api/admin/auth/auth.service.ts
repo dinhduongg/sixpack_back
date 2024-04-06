@@ -108,7 +108,7 @@ export class AuthService {
 
     // Set time to 12:00:00 AM for the next day
     const nextDay = new Date(now)
-    nextDay.setDate(now.getDate() + 1)
+    nextDay.setDate(nextDay.getDate() + 1)
     nextDay.setHours(0, 0, 0, 0)
 
     const jwtSecrect = this.config.get<string>('jwtSecrect')
@@ -117,7 +117,7 @@ export class AuthService {
     const checkExist = await this.prisma.employee_sessions.findFirst({ where: { employee_id: payload.id } })
 
     if (checkExist) {
-      await this.prisma.employee_sessions.update({ where: { id: checkExist.id }, data: { session_token: token } })
+      await this.prisma.employee_sessions.update({ where: { id: checkExist.id }, data: { session_token: token, expired_time: nextDay } })
     } else {
       await this.prisma.employee_sessions.create({
         data: {

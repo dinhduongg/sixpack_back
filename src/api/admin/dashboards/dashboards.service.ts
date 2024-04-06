@@ -20,6 +20,7 @@ export class DashboardsService {
 
       const dashboards = await this.prisma.dashboards.findMany({
         where,
+        orderBy: { sorted: 'asc' },
         include: {
           childrens: true,
         },

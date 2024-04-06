@@ -52,6 +52,7 @@ model dashboards {
   parent_id  String?
   url        String?
   role_code  String?
+  sorted     Int?
   enabled    Boolean @default(true)
   check_role Boolean @default(true)
   created_at DateTime? @default(now())
