@@ -40,10 +40,15 @@ export class EmployeesController {
     return this.employeesService.changePassword(id, dto)
   }
 
-  // Thêm hoặc xóa quyền
-  @Put('role/:employee_id/:role_id')
-  updateRole(@Param('employee_id') employeeId: string, @Param('role_id') roleId: string) {
-    return this.employeesService.updateRole(employeeId, roleId)
+  // Thêm quyền
+  @Post('role')
+  createRole(@Body('employee_id') employeeId: string, @Body('role_id') roleId: string) {
+    return this.employeesService.createRole(employeeId, roleId)
+  }
+
+  @Delete('role/:employeeId/:roleId')
+  deleteRole(@Param('employeeId') employeeId: string, @Param('roleId') roleId: string) {
+    return this.employeesService.deleteRole(employeeId, roleId)
   }
 
   // Xóa nhân viên

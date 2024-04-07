@@ -11,8 +11,8 @@ export class DashboardsController {
 
   @Get()
   @Public()
-  getAll(@Query('parent_id') parentId: string) {
-    return this.dashboardsService.getAll(parentId)
+  getAll(@Query('parent_id') parentId: string, @Query('q') q?: string | undefined) {
+    return this.dashboardsService.getAll(parentId, q)
   }
 
   @Get(':id')

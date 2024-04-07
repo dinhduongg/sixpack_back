@@ -11,6 +11,7 @@ export const dashboardDto = z
         role_code: z.string().optional().nullable().default(null),
         check_role: z.boolean().optional(),
         enabled: z.boolean().optional(),
+        sorted: z.number().default(1),
       },
       { required_error: 'DEV: dashboard is required' },
     ),

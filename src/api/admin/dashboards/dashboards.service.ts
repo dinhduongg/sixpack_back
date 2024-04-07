@@ -8,7 +8,7 @@ import { DashboardDto } from './dashboards.validator'
 export class DashboardsService {
   constructor(private readonly prisma: DatabaseService) {}
 
-  async getAll(parentId: string) {
+  async getAll(parentId: string, q?: string | undefined) {
     try {
       const where = {}
 
@@ -16,6 +16,13 @@ export class DashboardsService {
         where['parent_id'] = parentId
       } else {
         where['parent_id'] = null
+      }
+
+      if (q) {
+        where['name'] = {
+          contains: q,
+          mode: 'insensitive',
+        }
       }
 
       const dashboards = await this.prisma.dashboards.findMany({

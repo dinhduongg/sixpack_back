@@ -72,10 +72,25 @@ export class EmployeesService {
 
   async getDetail(id: string) {
     try {
-      const employee = await this.prisma.employees.findUnique({ where: { id } })
+      const employee = await this.prisma.employees.findUnique({
+        where: { id },
+        include: {
+          roles: {
+            select: {
+              role: {
+                select: {
+                  role_code: true,
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const employeeRoles = employee.roles.map((role) => role.role.role_code)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...results } = employee
-      return { employee: results }
+      const { password, roles, ...results } = employee
+      return { employee: { ...results, roles: employeeRoles } }
     } catch (error) {
       throw new BadRequestException(error)
     }
@@ -122,16 +137,23 @@ export class EmployeesService {
     }
   }
 
-  async updateRole(employeeId: string, roleId: string) {
+  async createRole(employeeId: string, roleId: string) {
     try {
-      const isExist = await this.prisma.employee_roles.findFirst({ where: { employee_id: employeeId, role_id: roleId } })
+      await this.prisma.employee_roles.create({
+        data: {
+          employee_id: employeeId,
+          role_id: roleId,
+        },
+      })
+      return { message: 'Thành công' }
+    } catch (error) {
+      throw new BadRequestException(error)
+    }
+  }
 
-      if (isExist) {
-        await this.prisma.employee_roles.delete({ where: { id: isExist.id } })
-      } else {
-        await this.prisma.employee_roles.create({ data: { employee_id: employeeId, role_id: roleId } })
-      }
-
+  async deleteRole(employeeId: string, roleId: string) {
+    try {
+      await this.prisma.employee_roles.deleteMany({ where: { role_id: roleId, employee_id: employeeId } })
       return { message: 'Thành công' }
     } catch (error) {
       throw new BadRequestException(error)
