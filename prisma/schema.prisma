@@ -69,3 +69,11 @@ model employee_sessions {
   expired_time DateTime
   session_token String
 }
+
+model basics {
+  id String @id @default(uuid()) @map("_id")
+  shell String
+  value String
+  value_en String
+  group String?  // 1: Mạng xã hội
+}

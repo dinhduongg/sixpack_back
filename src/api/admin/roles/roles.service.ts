@@ -17,6 +17,15 @@ export class RolesService {
     }
   }
 
+  async getOne(id: string) {
+    try {
+      const role = await this.prisma.roles.findUnique({ where: { id } })
+      return { role }
+    } catch (error) {
+      throw new BadRequestException(error)
+    }
+  }
+
   async update(id: string, dto: RoleDto) {
     try {
       const data = dto.role

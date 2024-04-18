@@ -13,6 +13,11 @@ export class RolesController {
     return this.rolesService.getAll()
   }
 
+  @Get(':id')
+  getOne(@Param('id') id: string) {
+    return this.rolesService.getOne(id)
+  }
+
   @Put(':id')
   @UseZodValidation(roleDto)
   update(@Param('id') id: string, @Body() dto: RoleDto) {

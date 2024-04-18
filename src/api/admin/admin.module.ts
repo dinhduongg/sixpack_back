@@ -7,9 +7,10 @@ import { AuthModule } from './auth/auth.module'
 import { AdminGuard } from 'src/guards/admin.guard'
 import { RolesModule } from './roles/roles.module'
 import { DashboardsModule } from './dashboards/dashboards.module'
+import { BasicsModule } from './basics/basics.module'
 
 @Module({
-  imports: [EmployeesModule, AuthModule, JwtModule, RolesModule, DashboardsModule],
+  imports: [EmployeesModule, AuthModule, JwtModule, RolesModule, DashboardsModule, BasicsModule],
   controllers: [],
   providers: [
     {
